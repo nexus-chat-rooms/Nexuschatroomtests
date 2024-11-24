@@ -1,214 +1,1019 @@
+<link rel="shortcut icon" type="image/png" href="https://i.ibb.co/2FwztDC/nexus.png">
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LilyAI</title>
+    <title>Nexus Chat Rooms</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/2FwztDC/nexus.png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        /* General Reset */
-        body {
+        /* Global styles */
+        * {
+            box-sizing: border-box;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #000000;
-            color: #ffffff;
-            overflow: hidden;
+            padding: 0;
+            transition: all 0.3s ease;
         }
 
-        /* Interactive Background */
-        canvas {
+        body {
+            font-family: 'Roboto', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background-color: #1c1c1c; /* Default background color */
+        }
+
+        .particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Custom scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #1e90ff;
+        }
+
+        /* Container and header styles */
+        .container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #ffffff;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        /* Messages and input styles */
+        .messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(40, 40, 40, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #3b82f6;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 15px;
+            background: #2a2a2a;
+            max-width: 70%;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            animation: fadeIn 0.3s;
+            position: relative;
+        }
+
+        .message.self {
+            background: #3b82f6;
+            margin-left: auto;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.9);
+        }
+
+        .timestamp {
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 5px;
+            color: white;
+            margin-bottom: 5px;
+            text-align: center;
+            max-width: 100px;
+        }
+
+        .message img {
+            margin-right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .message span {
+            font-weight: bold;
+            color: #bbb;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .message p {
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .input-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px;
+        }
+
+        .input-area input[type="text"] {
+            flex-grow: 1;
+            border: none;
+            padding: 15px;
+            background: rgba(75, 0, 130, 0.5);
+            color: #ffffff;
+            border-radius: 20px;
+            font-size: 16px;
+            transition: background 0.3s;
+            margin-right: 10px;
+        }
+
+        .input-area input[type="text"]:focus {
+            background: rgba(75, 0, 130, 0.8);
+            outline: none;
+        }
+
+        .input-area input[type="submit"] {
+            padding: 15px 20px;
+            background: #3b82f6;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .input-area input[type="submit"]:hover {
+            background: #1e90ff;
+            transform: scale(1.05);
+        }
+
+        /* Join notification styles */
+        .join-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(75, 0, 130, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 20;
+            display: none; /* Hidden initially */
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Modal styles */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-        }
-
-        /* Layout Styling */
-        .container {
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
-            height: 100vh;
-            padding: 20px;
+            z-index: 10;
         }
 
-        .logo {
-            margin-top: 20px;
-        }
-
-        .title {
-            font-size: 3rem;
-            font-weight: bold;
+        .modal-content {
+            background: #23272a;
+            padding: 30px;
+            border-radius: 10px;
             text-align: center;
-            margin: 20px 0;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
         }
 
-        .chat-container {
-            width: 90%;
-            max-width: 600px;
+        .modal-content input[type="text"] {
+            margin: 10px 0;
+            padding: 15px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            background: #2f3136;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        .modal-content input[type="text"]:focus {
+            background: #3c3f44;
+        }
+
+        .modal-content button {
+            padding: 15px 25px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s, transform 0.2s;
+            margin-top: 10px;
+        }
+
+        .modal-content button:hover {
+            background: #1e90ff;
+            transform: scale(1.05);
+        }
+
+        /* Close button styles */
+        .close-button {
+            display: inline-block;
+            background: red;
+            border: none;
+            color: white;
+            font-size: 24px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        .close-button:hover {
+            background: darkred;
+        }
+
+        /* Theme modal styles */
+        .theme-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .theme-modal-content {
+            background: #2f3136;
+            border-radius: 10px;
+            padding: 30px;
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Use column layout */
             gap: 10px;
+            width: 90%;
+            max-width: 400px;
+            position: relative; /* For close button positioning */
+        }
+
+        .theme-button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            background: rgba(75, 0, 130, 0.5); /* Default background */
+        }
+
+        .theme-button:hover {
+            background: rgba(75, 0, 130, 0.8);
+        }
+
+        /* Error screen styles */
+        .error-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 30;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            .input-area input[type="text"] {
+                margin-bottom: 10px;
+                width: auto;
+            }
+
+            .input-area input[type="submit"] {
+                width: 100%;
+            }
+        }
+
+        /* Microphone button styles */
+        .mic-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #ffffff;
+            font-size: 24px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .mic-button:disabled {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Button styles */
+        .music-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            transition: background 0.3s ease;
+            z-index: 30;
+        }
+
+        .music-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .settings-button {
+            position: absolute;
+            top: 20px;
+            left: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            transition: background 0.3s ease;
+            z-index: 30;
+        }
+
+        .settings-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .credits-button {
+            position: absolute;
+            top: 20px;
+            left: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            z-index: 30;
+        }
+
+        .credits-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Games button */
+        .games-button {
+            position: absolute;
+            top: 20px;
+            left: 170px; /* Adjust as needed */
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            transition: background 0.3s ease;
+            z-index: 30;
+        }
+
+        .games-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Apply themes */
+        body {
+            background-color: var(--bg-color, #1c1c1c);
+        }
+
+        .header {
+            background: var(--header-bg, rgba(30, 30, 30, 0.9));
         }
 
         .messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #ffffff;
-            border-radius: 10px;
-            max-height: 400px;
+            background: var(--card-bg, rgba(40, 40, 40, 0.9));
+            border-color: var(--button-bg, #3b82f6);
         }
 
-        .message {
-            margin-bottom: 10px;
+        .input-area input[type="submit"] {
+            background: var(--button-bg, #3b82f6);
         }
 
-        .user-message {
-            text-align: right;
-            color: #ffcc00;
+        .input-area input[type="submit"]:hover {
+            background: var(--button-hover-bg, #1e90ff);
         }
 
-        .ai-message {
-            text-align: left;
-            color: #00ffcc;
+        .music-button,
+        .settings-button,
+        .credits-button,
+        .games-button {
+            color: var(--icon-color, #ffffff);
         }
 
-        .input-container {
-            display: flex;
-            gap: 10px;
+        /* Theme styles - Existing */
+        /* Replace these with your own theme definitions */
+        :root {
+            --bg-color: #1c1c1c;
+            --header-bg: rgba(30, 30, 30, 0.9);
+            --card-bg: rgba(40, 40, 40, 0.9);
+            --button-bg: #3b82f6;
+            --button-hover-bg: #1e90ff;
+            --icon-color: #ffffff;
         }
 
-        .input-container input {
-            flex-grow: 1;
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 10px;
-            border: none;
-            outline: none;
+        /* Example theme styles */
+        .mocha {
+            --bg-color: #4e3b34;
+            --header-bg: rgba(66, 54, 49, 0.9);
+            --card-bg: rgba(75, 60, 55, 0.9);
+            --button-bg: #cd853f;
+            --button-hover-bg: #ad6a26;
         }
 
-        .input-container button {
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 10px;
-            background-color: #ff0000;
-            color: #ffffff;
-            border: none;
-            cursor: pointer;
+        .ocean {
+            --bg-color: #0e3f6b;
+            --header-bg: rgba(66, 164, 189, 0.9);
+            --card-bg: rgba(26, 60, 70, 0.9);
+            --button-bg: #0972b0;
+            --button-hover-bg: #075e8d;
         }
 
-        .input-container button:hover {
-            background-color: #cc0000;
+        .volcano {
+            --bg-color: #5c2e2e;
+            --header-bg: rgba(122, 40, 30, 0.9);
+            --card-bg: rgba(98, 30, 20, 0.9);
+            --button-bg: #c0392b;
+            --button-hover-bg: #a73529;
+        }
+
+        .sunset {
+            --bg-color: #7c3e00;
+            --header-bg: rgba(255, 165, 0, 0.9);
+            --card-bg: rgba(219, 102, 30, 0.9);
+            --button-bg: #ff6f00;
+            --button-hover-bg: #db6200;
+        }
+
+        .forest {
+            --bg-color: #0b3d12;
+            --header-bg: rgba(60, 97, 66, 0.8);
+            --card-bg: rgba(29, 54, 38, 0.9);
+            --button-bg: #1f8a1f;
+            --button-hover-bg: #1a7c1a;
+        }
+
+        .retro {
+            --bg-color: #5d3e2b;
+            --header-bg: #9c7900;
+            --card-bg: #6d4b3a;
+            --button-bg: #c4c4c4;
+            --button-hover-bg: #b0b0b0;
+        }
+
+        .cyberpunk {
+            --bg-color: #080808;
+            --header-bg: rgba(0, 255, 204, 0.9);
+            --card-bg: rgba(46, 46, 46, 0.9);
+            --button-bg: #ffff00;
+            --button-hover-bg: #f7ff00;
+        }
+
+        .pastel {
+            --bg-color: #e6e67a;
+            --header-bg: rgba(243, 156, 18, 0.9);
+            --card-bg: rgba(236, 152, 34, 0.9);
+            --button-bg: #cd853f;
+            --button-hover-bg: #ad6a26;
+        }
+
+        .darkmode {
+            --bg-color: #121212;
+            --header-bg: #1e1e1e;
+            --card-bg: #0c0c0c;
+            --button-bg: #333333;
+            --button-hover-bg: #444444;
+        }
+
+        .neon {
+            --bg-color: #141414;
+            --header-bg: rgba(255, 0, 91, 0.9);
+            --card-bg: rgba(63, 63, 63, 0.9);
+            --button-bg: #c11ff4;
+            --button-hover-bg: #a715e8;
         }
     </style>
 </head>
+
 <body>
-    <canvas id="background"></canvas>
-    <div class="container">
-        <img class="logo" src="companion.png" alt="LilyAI Logo">
-        <div class="title">LilyAI</div>
-        <div class="chat-container">
-            <div class="messages" id="messages"></div>
-            <div class="input-container">
-                <input type="text" id="userInput" placeholder="Type your message...">
-                <button onclick="sendMessage()">Send</button>
-            </div>
+
+    <div id="particles-js" class="particles-js"></div>
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="5.ogg" type="audio/ogg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <button id="musicMuteButton" class="music-button" aria-label="Mute/Unmute Music">
+        <i class="fas fa-volume-up"></i>
+    </button>
+
+    <button class="settings-button" id="settingsButton" aria-label="Change Theme">
+        <i class="fas fa-cog"></i>
+    </button>
+
+    <button class="credits-button" id="creditsButton" aria-label="Show Credits" onclick="window.open('https://nexus-chat-rooms.github.io/nexuschatroom/credit', '_blank');">
+        <i class="fas fa-info-circle"></i>
+    </button>
+
+    <!-- New Game Button -->
+    <button class="games-button" id="gamesButton" aria-label="Games">
+        <i class="fas fa-gamepad"></i>
+    </button>
+
+    <div class="modal" id="roomModal">
+        <div class="modal-content">
+            <h2>Join a Room</h2>
+            <input type="text" id="roomCodeInput" placeholder="Room Code" required aria-label="Room Code">
+            <input type="text" id="usernameInput" placeholder="Your Name" required aria-label="Your Name">
+            <button onclick="joinRoom()">Join</button>
         </div>
     </div>
 
+    <audio id="notificationSound" src="notification.mp3" preload="auto"></audio>
+
+    <div class="theme-modal" id="themeModal">
+        <div class="theme-modal-content">
+            <h2>Select a Theme</h2>
+            <div class="theme-options">
+                <button class="theme-button mocha" onclick="selectTheme('mocha')">Mocha</button>
+                <button class="theme-button ocean" onclick="selectTheme('ocean')">Ocean</button>
+                <button class="theme-button volcano" onclick="selectTheme('volcano')">Volcano</button>
+                <button class="theme-button sunset" onclick="selectTheme('sunset')">Sunset</button>
+                <button class="theme-button forest" onclick="selectTheme('forest')">Forest</button>
+                <button class="theme-button retro" onclick="selectTheme('retro')">Retro</button>
+                <button class="theme-button cyberpunk" onclick="selectTheme('cyberpunk')">Cyberpunk</button>
+                <button class="theme-button pastel" onclick="selectTheme('pastel')">Pastel</button>
+                <button class="theme-button darkmode" onclick="selectTheme('darkmode')">Dark Mode</button>
+                <button class="theme-button neon" onclick="selectTheme('neon')">Neon</button>
+            </div>
+            <label for="bgMusicSelect" style="color: white; margin-top: 20px;">Select Background Music:</label>
+            <select id="bgMusicSelect" style="margin-top: 5px; padding: 5px; border-radius: 5px; border: none;">
+                <option value="5.ogg">Nexus OG</option>
+                <option value="little-slimex27s-adventure-151007.mp3">Funky Game Music.</option>
+                <option value="strangerthingspop.mp3">Stranger Things Pop Music Beat.</option>
+                <option value="goldensummer.mp3">Summer Beat</option>
+                <option value="coldbrew.mp3">Lobby Music - Elevator</option>
+            </select>
+            <button class="close-button" onclick="closeThemeModal()">&#10006;</button> <!-- Big red X -->
+        </div>
+    </div>
+
+    <div class="container" id="chatContainer" style="display: none;">
+        <div class="header">
+            <h1 id="roomName">Room</h1>
+            <p id="userInfo">Logged in as: <span id="userNameDisplay"></span></p>
+        </div>
+        <div class="messages" id="messages"></div>
+        <form class="input-area" onsubmit="return false;">
+            <input id="messageInput" placeholder="Type a message..." type="text" required aria-label="Message Input" />
+            <button class="mic-button" type="button" id="micButton" aria-label="Voice Input">
+                <i class="fas fa-microphone-slash" id="micIcon"></i>
+            </button>
+            <input type="submit" value="Send" onclick="sendMessage()" aria-label="Send Message">
+        </form>
+        <div class="join-notification" id="joinNotification"></div>
+    </div>
+
+    <div class="error-screen" id="errorScreen">
+        <h1>404 ERROR FOUND</h1>
+        <p>Nexus chat cannot allow access to your device as you are too zoomed in!</p>
+        <button onclick="resizeScreen()">Reload or shrink your screen size!</button>
+    </div>
+
+    <div class="join-notification" id="joinNotification" style="display: none;">
+        <h2 id="joinMessage"></h2>
+    </div>
+
     <script>
-        // Interactive background
-        const canvas = document.getElementById("background");
-        const ctx = canvas.getContext("2d");
+        const CLIENT_ID = 'aSEKMcR4GsEZONob';
+        const drone = new ScaleDrone(CLIENT_ID);
+        let room;
+        let userName = '';
+        let roomCode = '';
+        const userNames = {};
+        let isRecording = false; // Track voice recording status
+        let recognition; // Speech recognition instance
+        let isMusicMuted = false; // Track music mute status
+        const badWords = ["fuck", "shit", "nigger", "bitch", "dick", "ass", "asshole", "cock"]; // Replace with actual bad words
 
-        const squares = [];
-        const squareCount = 50;
+        // Max number of chances before kicking the user
+        const MAX_CHANCES = 3;
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        // Check if user is already kicked
+        const userKicked = localStorage.getItem('kickedUser');
+
+        if (userKicked) {
+            alert("You have been removed from the chat room and cannot rejoin.");
+            window.location.reload(); // Reload the page if user is kicked
         }
 
-        function createSquares() {
-            for (let i = 0; i < squareCount; i++) {
-                squares.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 20 + 10,
-                    dx: Math.random() * 2 - 1,
-                    dy: Math.random() * 2 - 1,
-                });
+        // Check screen size function
+        function checkScreenSize() {
+            if (window.innerWidth < 500) {
+                document.getElementById("errorScreen").style.display = "flex";
+                document.getElementById("chatContainer").style.display = "none";
+                return false;
             }
+            document.getElementById("errorScreen").style.display = "none";
+            return true;
         }
 
-        function drawSquares() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            squares.forEach((square) => {
-                ctx.fillStyle = `rgba(255, 255, 255, 0.7)`;
-                ctx.fillRect(square.x, square.y, square.size, square.size);
-                square.x += square.dx;
-                square.y += square.dy;
+        function resizeScreen() {
+            window.location.reload();
+        }
 
-                if (square.x < 0 || square.x > canvas.width) square.dx *= -1;
-                if (square.y < 0 || square.y > canvas.height) square.dy *= -1;
+        window.onload = function () {
+            checkScreenSize();
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            backgroundMusic.volume = 0.4; // Adjust volume as needed
+            backgroundMusic.play(); // Play music automatically
+
+            document.body.addEventListener('click', () => {
+                backgroundMusic.play().catch(error => {
+                    console.error('Audio playback failed:', error);
+                });
+            }, { once: true });
+
+            // Set change event for background music selection
+            document.getElementById('bgMusicSelect').addEventListener('change', function () {
+                const selectedSong = this.value;
+                const backgroundMusic = document.getElementById('backgroundMusic');
+                backgroundMusic.src = selectedSong; // Change the source to the selected music
+                backgroundMusic.play(); // Play the new music
             });
-            requestAnimationFrame(drawSquares);
-        }
+        };
 
-        resizeCanvas();
-        createSquares();
-        drawSquares();
-        window.addEventListener("resize", resizeCanvas);
+        window.onresize = function () {
+            checkScreenSize();
+        };
 
-        // Chat logic
-        const apiKey = "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"; // Replace with your OpenAI API key
-        const apiUrl = "https://api.openai.com/v1/completions";
-        const messagesDiv = document.getElementById("messages");
+        // Function to open theme modal
+        document.getElementById('settingsButton').onclick = function () {
+            document.getElementById('themeModal').style.display = 'flex';
+        };
 
-        function addMessage(message, type) {
-            const messageDiv = document.createElement("div");
-            messageDiv.className = `message ${type}-message`;
-            messageDiv.textContent = message;
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
+        function joinRoom() {
+            userName = document.getElementById('usernameInput').value.trim();
+            roomCode = document.getElementById('roomCodeInput').value.trim();
 
-        async function sendMessage() {
-            const userInput = document.getElementById("userInput").value;
-            if (!userInput.trim()) return;
+            if (!userName || !roomCode || /[^a-zA-Z0-9]/.test(userName)) {
+                alert('Please enter a valid username and room code without special characters!');
+                return;
+            }
 
-            addMessage(userInput, "user");
-            document.getElementById("userInput").value = "";
+            if (userNames[userName]) {
+                alert('This username is already taken. Please choose another one.');
+                return;
+            }
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${apiKey}`,
-                    },
-                    body: JSON.stringify({
-                        model: "text-davinci-003",
-                        prompt: userInput,
-                        max_tokens: 150,
-                        temperature: 0.7,
-                    }),
-                });
+            userNames[userName] = {
+                clientId: drone.clientId,
+                chances: MAX_CHANCES // Initialize with max chances
+            };
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const aiMessage = data.choices[0].text.trim();
-                    addMessage(aiMessage, "ai");
-                } else {
-                    addMessage("I’m having trouble processing your request. Please try again later!", "ai");
+            document.getElementById('roomModal').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'flex';
+            document.getElementById('userNameDisplay').textContent = userName;
+            document.getElementById('roomName').textContent = `Room: ${roomCode}`;
+
+            room = drone.subscribe(`observable-${roomCode}`);
+
+            room.on('data', (data, member) => {
+                if (data) {
+                    addMessageToList(data.text, data.name, member.id === drone.clientId);
+                    if (!userNames[data.name]) {
+                        userNames[data.name] = { clientId: member.id, chances: MAX_CHANCES }; // Initialize chances for new users
+                        showJoinNotification(data.name); // Show notification
+                    }
+                    if (member.id !== drone.clientId) {
+                        const notificationSound = document.getElementById('notificationSound');
+                        notificationSound.volume = 1.0;
+                        notificationSound.play().catch(error => {
+                            console.error('Audio playback failed:', error);
+                        });
+                    }
                 }
-            } catch (error) {
-                addMessage("Error: Unable to connect to the AI. Check your internet or API key.", "ai");
+            });
+        }
+
+        function sendMessage(text) {
+            const messageInput = document.getElementById('messageInput');
+            const messageText = text || messageInput.value.trim();
+            const timestamp = new Date().toLocaleTimeString();
+
+            if (messageText === '') return;
+
+            if (!text) {
+                messageInput.value = ''; // Clear input field if sending manually
+            }
+
+            // Check for bad words
+            const user = userNames[userName]; // Get user data
+            if (badWords.some(badWord => messageText.toLowerCase().includes(badWord))) {
+                user.chances -= 1; // Decrement chances
+                if (user.chances <= 0) {
+                    alert("You have been kicked for using inappropriate language.");
+                    localStorage.setItem('kickedUser', userName);
+                    window.location.reload(); // Reload to remove user from the chat
+                    return; // Prevent further processing
+                } else {
+                    alert(`Warning! You have ${user.chances} chances left!`);
+                }
+            }
+
+            drone.publish({
+                room: `observable-${roomCode}`,
+                message: { text: messageText, name: userName, timestamp }
+            });
+        }
+
+        function formatLinks(text) {
+            const urlPattern = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlPattern, '<a href="$1" class="link" target="_blank">$1</a>');
+        }
+
+        function addMessageToList(text, name, isSelf) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            if (isSelf) {
+                messageDiv.classList.add('self');
+            }
+            messageDiv.innerHTML = `
+                <div class="timestamp">${new Date().toLocaleTimeString()}</div>
+                <img src="nexus.png" alt="${name}'s Avatar">
+                <div>
+                    <span>${name}</span>
+                    <p>${formatLinks(text)}</p> 
+                </div>`;
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
+        }
+
+        function showJoinNotification(name) {
+            const joinNotification = document.getElementById('joinNotification');
+            joinNotification.textContent = `${name} has joined the chatroom.`;
+            joinNotification.style.display = 'block';
+            setTimeout(() => {
+                joinNotification.style.display = 'none';
+            }, 3000);
+        }
+
+        function startRecording() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Your browser does not support speech recognition.");
+                return;
+            }
+
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById('micIcon').classList.remove('fa-microphone-slash');
+                document.getElementById('micIcon').classList.add('fa-microphone');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                sendMessage(transcript);
+                stopRecording(); // Stop recording once a message is sent
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                document.getElementById('micIcon').classList.remove('fa-microphone');
+                document.getElementById('micIcon').classList.add('fa-microphone-slash');
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech recognition error:", event.error);
+                stopRecording();
+            };
+
+            recognition.start();
+        }
+
+        function stopRecording() {
+            if (isRecording && recognition) {
+                recognition.stop();
             }
         }
+
+        document.getElementById('micButton').onclick = function () {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(() => {
+                        startRecording();
+                    })
+                    .catch(error => {
+                        console.error("Microphone access denied:", error);
+                        alert("Microphone access is required for voice input.");
+                    });
+            }
+        };
+
+        document.getElementById('musicMuteButton').onclick = function () {
+            const backgroundMusic = document.getElementById('backgroundMusic');
+
+            if (isMusicMuted) {
+                backgroundMusic.play().catch(error => {
+                    console.error('Audio playback failed:', error);
+                });
+                this.innerHTML = '<i class="fas fa-volume-up"></i>'; // Change icon to "unmuted"
+            } else {
+                backgroundMusic.pause();
+                this.innerHTML = '<i class="fas fa-volume-mute"></i>'; // Change icon to "muted"
+            }
+
+            isMusicMuted = !isMusicMuted; // Toggle mute status
+        };
+
+        function closeThemeModal() {
+            document.getElementById('themeModal').style.display = 'none';
+        }
+
+        function selectTheme(theme) {
+            const themeClasses = ['mocha', 'ocean', 'volcano', 'sunset', 'forest', 'retro', 'cyberpunk', 'pastel', 'darkmode', 'neon'];
+            themeClasses.forEach(t => document.body.classList.remove(t)); // Remove existing theme classes
+            document.body.classList.add(theme); // Add selected theme class
+            closeThemeModal(); // Close the modal after selection
+        }
+
+        // Add click event for the newly added games button
+        document.getElementById('gamesButton').onclick = function () {
+            window.location.href = "https://playervpn.github.io/playervpn-games/"; // Link to the games page
+        };
+
+        // particlesJS setup
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {
+                    "value": 300,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#ffffff"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    }
+                },
+                "opacity": {
+                    "value": 0.5,
+                    "random": false
+                },
+                "size": {
+                    "value": 4,
+                    "random": true
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#ffffff",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 5,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false
+                }
+            },
+            "interactivity": {
+                "detect_on": "window",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "repulse"
+                    },
+                    "onclick": {
+                        "enable": false,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 130,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200,
+                        "duration": 0.4
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    },
+                    "remove": {
+                        "particles_nb": 2
+                    }
+                }
+            },
+            "retina_detect": true
+        });
     </script>
 </body>
+
 </html>
