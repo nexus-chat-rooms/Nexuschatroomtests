@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LilyAI</title>
+    <style>
+        /* General Reset */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        /* Interactive Background */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Layout Styling */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .logo {
+            margin-top: 20px;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ffffff;
+            border-radius: 10px;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .user-message {
+            text-align: right;
+            color: #ffcc00;
+        }
+
+        .ai-message {
+            text-align: left;
+            color: #00ffcc;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-container input {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+        }
+
+        .input-container button {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 10px;
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .input-container button:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="background"></canvas>
+    <div class="container">
+        <img class="logo" src="companion.png" alt="LilyAI Logo">
+        <div class="title">LilyAI</div>
+        <div class="chat-container">
+            <div class="messages" id="messages"></div>
+            <div class="input-container">
+                <input type="text" id="userInput" placeholder="Type your message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive background
+        const canvas = document.getElementById("background");
+        const ctx = canvas.getContext("2d");
+
+        const squares = [];
+        const squareCount = 50;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createSquares() {
+            for (let i = 0; i < squareCount; i++) {
+                squares.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 20 + 10,
+                    dx: Math.random() * 2 - 1,
+                    dy: Math.random() * 2 - 1,
+                });
+            }
+        }
+
+        function drawSquares() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            squares.forEach((square) => {
+                ctx.fillStyle = `rgba(255, 255, 255, 0.7)`;
+                ctx.fillRect(square.x, square.y, square.size, square.size);
+                square.x += square.dx;
+                square.y += square.dy;
+
+                if (square.x < 0 || square.x > canvas.width) square.dx *= -1;
+                if (square.y < 0 || square.y > canvas.height) square.dy *= -1;
+            });
+            requestAnimationFrame(drawSquares);
+        }
+
+        resizeCanvas();
+        createSquares();
+        drawSquares();
+        window.addEventListener("resize", resizeCanvas);
+
+        // Chat logic
+        const apiKey = "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"; // Replace with your OpenAI API key
+        const apiUrl = "https://api.openai.com/v1/completions";
+        const messagesDiv = document.getElementById("messages");
+
+        function addMessage(message, type) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.textContent = message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById("userInput").value;
+            if (!userInput.trim()) return;
+
+            addMessage(userInput, "user");
+            document.getElementById("userInput").value = "";
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({
+                        model: "text-davinci-003",
+                        prompt: userInput,
+                        max_tokens: 150,
+                        temperature: 0.7,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const aiMessage = data.choices[0].text.trim();
+                    addMessage(aiMessage, "ai");
+                } else {
+                    addMessage("I’m having trouble processing your request. Please try again later!", "ai");
+                }
+            } catch (error) {
+                addMessage("Error: Unable to connect to the AI. Check your internet or API key.", "ai");
+            }
+        }
+    </script>
+</body>
+</html>
