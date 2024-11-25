@@ -427,11 +427,11 @@
             background: rgba(255, 255, 255, 0.5);
         }
 
-        /* Games button */
-        .games-button {
+        /* Controller button styles */
+        .controller-button {
             position: absolute;
             top: 20px;
-            left: 170px; /* Adjust as needed */
+            left: 170px; /* Adjust position as needed to appear next to other buttons */
             background: rgba(255, 255, 255, 0.2);
             border: none;
             border-radius: 5px;
@@ -443,7 +443,7 @@
             z-index: 30;
         }
 
-        .games-button:hover {
+        .controller-button:hover {
             background: rgba(255, 255, 255, 0.5);
         }
 
@@ -472,7 +472,7 @@
         .music-button,
         .settings-button,
         .credits-button,
-        .games-button {
+        .controller-button {
             color: var(--icon-color, #ffffff);
         }
 
@@ -590,8 +590,7 @@
         <i class="fas fa-info-circle"></i>
     </button>
 
-    <!-- New Game Button -->
-    <button class="games-button" id="gamesButton" aria-label="Games">
+    <button class="controller-button" onclick="window.open('https://playervpn.github.io/playervpn-games/', '_blank');" aria-label="Go to Player VPN Games">
         <i class="fas fa-gamepad"></i>
     </button>
 
@@ -627,9 +626,11 @@
                 <option value="little-slimex27s-adventure-151007.mp3">Funky Game Music.</option>
                 <option value="strangerthingspop.mp3">Stranger Things Pop Music Beat.</option>
                 <option value="goldensummer.mp3">Summer Beat</option>
-                <option value="coldbrew.mp3">Lobby Music - Elevator</option>
+                <option value="coldbrew.mp3">Cold Brew</option>
+                <option value="deepurban.mp3">Deep Urban.</option>
+                <option value="sereneview.mp3">Serene View</option>
             </select>
-            <button class="close-button" onclick="closeThemeModal()">&#10006;</button> <!-- Big red X -->
+            <button class="close-button" onclick="closeThemeModal()">X</button> <!-- Big red X -->
         </div>
     </div>
 
@@ -669,47 +670,16 @@
         let isRecording = false; // Track voice recording status
         let recognition; // Speech recognition instance
         let isMusicMuted = false; // Track music mute status
-        const badWords = ["fuck", "shit", "nigger", "bitch", "dick", "ass", "asshole", "cock"]; // Replace with actual bad words
 
-        // Max number of chances before kicking the user
-        const MAX_CHANCES = 3;
-
-        // Check if user is already kicked
-        const userKicked = localStorage.getItem('kickedUser');
-
-        if (userKicked) {
-            alert("You have been removed from the chat room and cannot rejoin.");
-            window.location.reload(); // Reload the page if user is kicked
-        }
-
-        // Check screen size function
-        function checkScreenSize() {
-            if (window.innerWidth < 500) {
-                document.getElementById("errorScreen").style.display = "flex";
-                document.getElementById("chatContainer").style.display = "none";
-                return false;
-            }
-            document.getElementById("errorScreen").style.display = "none";
-            return true;
-        }
-
-        function resizeScreen() {
-            window.location.reload();
-        }
-
+        // Enable auto-playing background music
         window.onload = function () {
-            checkScreenSize();
             const backgroundMusic = document.getElementById('backgroundMusic');
             backgroundMusic.volume = 0.4; // Adjust volume as needed
-            backgroundMusic.play(); // Play music automatically
-
-            document.body.addEventListener('click', () => {
-                backgroundMusic.play().catch(error => {
-                    console.error('Audio playback failed:', error);
-                });
-            }, { once: true });
-
-            // Set change event for background music selection
+            backgroundMusic.play().catch(error => {
+                console.error('Auto-play failed:', error);
+            }); // Play music automatically
+            
+            // Change event for background music selection
             document.getElementById('bgMusicSelect').addEventListener('change', function () {
                 const selectedSong = this.value;
                 const backgroundMusic = document.getElementById('backgroundMusic');
@@ -722,7 +692,6 @@
             checkScreenSize();
         };
 
-        // Function to open theme modal
         document.getElementById('settingsButton').onclick = function () {
             document.getElementById('themeModal').style.display = 'flex';
         };
@@ -741,15 +710,12 @@
                 return;
             }
 
-            userNames[userName] = {
-                clientId: drone.clientId,
-                chances: MAX_CHANCES // Initialize with max chances
-            };
-
             document.getElementById('roomModal').style.display = 'none';
             document.getElementById('chatContainer').style.display = 'flex';
             document.getElementById('userNameDisplay').textContent = userName;
             document.getElementById('roomName').textContent = `Room: ${roomCode}`;
+
+            userNames[userName] = { clientId: drone.clientId };
 
             room = drone.subscribe(`observable-${roomCode}`);
 
@@ -757,7 +723,7 @@
                 if (data) {
                     addMessageToList(data.text, data.name, member.id === drone.clientId);
                     if (!userNames[data.name]) {
-                        userNames[data.name] = { clientId: member.id, chances: MAX_CHANCES }; // Initialize chances for new users
+                        userNames[data.name] = { clientId: member.id };
                         showJoinNotification(data.name); // Show notification
                     }
                     if (member.id !== drone.clientId) {
@@ -780,20 +746,6 @@
 
             if (!text) {
                 messageInput.value = ''; // Clear input field if sending manually
-            }
-
-            // Check for bad words
-            const user = userNames[userName]; // Get user data
-            if (badWords.some(badWord => messageText.toLowerCase().includes(badWord))) {
-                user.chances -= 1; // Decrement chances
-                if (user.chances <= 0) {
-                    alert("You have been kicked for using inappropriate language.");
-                    localStorage.setItem('kickedUser', userName);
-                    window.location.reload(); // Reload to remove user from the chat
-                    return; // Prevent further processing
-                } else {
-                    alert(`Warning! You have ${user.chances} chances left!`);
-                }
             }
 
             drone.publish({
@@ -919,11 +871,6 @@
             closeThemeModal(); // Close the modal after selection
         }
 
-        // Add click event for the newly added games button
-        document.getElementById('gamesButton').onclick = function () {
-            window.location.href = "https://playervpn.github.io/playervpn-games/"; // Link to the games page
-        };
-
         // particlesJS setup
         particlesJS("particles-js", {
             "particles": {
@@ -1015,5 +962,4 @@
         });
     </script>
 </body>
-
 </html>
