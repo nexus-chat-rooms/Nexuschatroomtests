@@ -1,965 +1,470 @@
-<link rel="shortcut icon" type="image/png" href="https://i.ibb.co/2FwztDC/nexus.png">
-
+<link rel="shortcut icon" type="image/png" href="https://i.ibb.co/mGcR8XN/P.png">
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Chat Rooms</title>
-    <link rel="icon" type="image/png" href="https://i.ibb.co/2FwztDC/nexus.png">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        /* Global styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            transition: all 0.3s ease;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-            background-color: #1c1c1c; /* Default background color */
-        }
-
-        .particles-js {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
-
-        /* Custom scrollbar styles */
-        ::-webkit-scrollbar {
-            width: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: #3b82f6;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: #1e90ff;
-        }
-
-        /* Container and header styles */
-        .container {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            background: rgba(30, 30, 30, 0.9);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-        }
-
-        .header h1 {
-            font-size: 28px;
-            color: #ffffff;
-        }
-
-        .header p {
-            font-size: 14px;
-            color: #bbb;
-        }
-
-        /* Messages and input styles */
-        .messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: rgba(40, 40, 40, 0.9);
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-            border: 2px solid #3b82f6;
-        }
-
-        .message {
-            padding: 15px;
-            border-radius: 15px;
-            background: #2a2a2a;
-            max-width: 70%;
-            display: flex;
-            align-items: flex-start;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-            animation: fadeIn 0.3s;
-            position: relative;
-        }
-
-        .message.self {
-            background: #3b82f6;
-            margin-left: auto;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.9);
-        }
-
-        .timestamp {
-            font-size: 11px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 5px;
-            color: white;
-            margin-bottom: 5px;
-            text-align: center;
-            max-width: 100px;
-        }
-
-        .message img {
-            margin-right: 10px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .message span {
-            font-weight: bold;
-            color: #bbb;
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .message p {
-            margin: 0;
-            color: #ffffff;
-        }
-
-        .input-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 10px;
-        }
-
-        .input-area input[type="text"] {
-            flex-grow: 1;
-            border: none;
-            padding: 15px;
-            background: rgba(75, 0, 130, 0.5);
-            color: #ffffff;
-            border-radius: 20px;
-            font-size: 16px;
-            transition: background 0.3s;
-            margin-right: 10px;
-        }
-
-        .input-area input[type="text"]:focus {
-            background: rgba(75, 0, 130, 0.8);
-            outline: none;
-        }
-
-        .input-area input[type="submit"] {
-            padding: 15px 20px;
-            background: #3b82f6;
-            color: #ffffff;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
-        }
-
-        .input-area input[type="submit"]:hover {
-            background: #1e90ff;
-            transform: scale(1.05);
-        }
-
-        /* Join notification styles */
-        .join-notification {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(75, 0, 130, 0.8);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            z-index: 20;
-            display: none; /* Hidden initially */
-            animation: fadeIn 0.5s ease;
-        }
-
-        /* Modal styles */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .modal-content {
-            background: #23272a;
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-        }
-
-        .modal-content input[type="text"] {
-            margin: 10px 0;
-            padding: 15px;
-            width: 100%;
-            border: none;
-            border-radius: 5px;
-            background: #2f3136;
-            color: white;
-            transition: background 0.3s;
-        }
-
-        .modal-content input[type="text"]:focus {
-            background: #3c3f44;
-        }
-
-        .modal-content button {
-            padding: 15px 25px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s, transform 0.2s;
-            margin-top: 10px;
-        }
-
-        .modal-content button:hover {
-            background: #1e90ff;
-            transform: scale(1.05);
-        }
-
-        /* Close button styles */
-        .close-button {
-            display: inline-block;
-            background: red;
-            border: none;
-            color: white;
-            font-size: 24px;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            position: absolute;
-            top: 15px;
-            right: 15px;
-        }
-
-        .close-button:hover {
-            background: darkred;
-        }
-
-        /* Theme modal styles */
-        .theme-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none; /* Initially hidden */
-            justify-content: center;
-            align-items: center;
-            z-index: 50;
-        }
-
-        .theme-modal-content {
-            background: #2f3136;
-            border-radius: 10px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column; /* Use column layout */
-            gap: 10px;
-            width: 90%;
-            max-width: 400px;
-            position: relative; /* For close button positioning */
-        }
-
-        .theme-button {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s;
-            text-align: center;
-            background: rgba(75, 0, 130, 0.5); /* Default background */
-        }
-
-        .theme-button:hover {
-            background: rgba(75, 0, 130, 0.8);
-        }
-
-        /* Error screen styles */
-        .error-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            z-index: 30;
-        }
-
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .input-area {
-                flex-direction: column;
-            }
-
-            .input-area input[type="text"] {
-                margin-bottom: 10px;
-                width: auto;
-            }
-
-            .input-area input[type="submit"] {
-                width: 100%;
-            }
-        }
-
-        /* Microphone button styles */
-        .mic-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #ffffff;
-            font-size: 24px;
-            margin-left: 10px;
-            margin-right: 10px;
-        }
-
-        .mic-button:disabled {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Button styles */
-        .music-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            cursor: pointer;
-            color: white;
-            font-size: 20px;
-            transition: background 0.3s ease;
-            z-index: 30;
-        }
-
-        .music-button:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        .settings-button {
-            position: absolute;
-            top: 20px;
-            left: 70px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            cursor: pointer;
-            color: white;
-            font-size: 20px;
-            transition: background 0.3s ease;
-            z-index: 30;
-        }
-
-        .settings-button:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        .credits-button {
-            position: absolute;
-            top: 20px;
-            left: 120px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            z-index: 30;
-        }
-
-        .credits-button:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Controller button styles */
-        .controller-button {
-            position: absolute;
-            top: 20px;
-            left: 170px; /* Adjust position as needed to appear next to other buttons */
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            cursor: pointer;
-            color: white;
-            font-size: 20px;
-            transition: background 0.3s ease;
-            z-index: 30;
-        }
-
-        .controller-button:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Apply themes */
-        body {
-            background-color: var(--bg-color, #1c1c1c);
-        }
-
-        .header {
-            background: var(--header-bg, rgba(30, 30, 30, 0.9));
-        }
-
-        .messages {
-            background: var(--card-bg, rgba(40, 40, 40, 0.9));
-            border-color: var(--button-bg, #3b82f6);
-        }
-
-        .input-area input[type="submit"] {
-            background: var(--button-bg, #3b82f6);
-        }
-
-        .input-area input[type="submit"]:hover {
-            background: var(--button-hover-bg, #1e90ff);
-        }
-
-        .music-button,
-        .settings-button,
-        .credits-button,
-        .controller-button {
-            color: var(--icon-color, #ffffff);
-        }
-
-        /* Theme styles - Existing */
-        /* Replace these with your own theme definitions */
-        :root {
-            --bg-color: #1c1c1c;
-            --header-bg: rgba(30, 30, 30, 0.9);
-            --card-bg: rgba(40, 40, 40, 0.9);
-            --button-bg: #3b82f6;
-            --button-hover-bg: #1e90ff;
-            --icon-color: #ffffff;
-        }
-
-        /* Example theme styles */
-        .mocha {
-            --bg-color: #4e3b34;
-            --header-bg: rgba(66, 54, 49, 0.9);
-            --card-bg: rgba(75, 60, 55, 0.9);
-            --button-bg: #cd853f;
-            --button-hover-bg: #ad6a26;
-        }
-
-        .ocean {
-            --bg-color: #0e3f6b;
-            --header-bg: rgba(66, 164, 189, 0.9);
-            --card-bg: rgba(26, 60, 70, 0.9);
-            --button-bg: #0972b0;
-            --button-hover-bg: #075e8d;
-        }
-
-        .volcano {
-            --bg-color: #5c2e2e;
-            --header-bg: rgba(122, 40, 30, 0.9);
-            --card-bg: rgba(98, 30, 20, 0.9);
-            --button-bg: #c0392b;
-            --button-hover-bg: #a73529;
-        }
-
-        .sunset {
-            --bg-color: #7c3e00;
-            --header-bg: rgba(255, 165, 0, 0.9);
-            --card-bg: rgba(219, 102, 30, 0.9);
-            --button-bg: #ff6f00;
-            --button-hover-bg: #db6200;
-        }
-
-        .forest {
-            --bg-color: #0b3d12;
-            --header-bg: rgba(60, 97, 66, 0.8);
-            --card-bg: rgba(29, 54, 38, 0.9);
-            --button-bg: #1f8a1f;
-            --button-hover-bg: #1a7c1a;
-        }
-
-        .retro {
-            --bg-color: #5d3e2b;
-            --header-bg: #9c7900;
-            --card-bg: #6d4b3a;
-            --button-bg: #c4c4c4;
-            --button-hover-bg: #b0b0b0;
-        }
-
-        .cyberpunk {
-            --bg-color: #080808;
-            --header-bg: rgba(0, 255, 204, 0.9);
-            --card-bg: rgba(46, 46, 46, 0.9);
-            --button-bg: #ffff00;
-            --button-hover-bg: #f7ff00;
-        }
-
-        .pastel {
-            --bg-color: #e6e67a;
-            --header-bg: rgba(243, 156, 18, 0.9);
-            --card-bg: rgba(236, 152, 34, 0.9);
-            --button-bg: #cd853f;
-            --button-hover-bg: #ad6a26;
-        }
-
-        .darkmode {
-            --bg-color: #121212;
-            --header-bg: #1e1e1e;
-            --card-bg: #0c0c0c;
-            --button-bg: #333333;
-            --button-hover-bg: #444444;
-        }
-
-        .neon {
-            --bg-color: #141414;
-            --header-bg: rgba(255, 0, 91, 0.9);
-            --card-bg: rgba(63, 63, 63, 0.9);
-            --button-bg: #c11ff4;
-            --button-hover-bg: #a715e8;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlayerVPN games</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Inline CSS for Enhanced Styling -->
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #121212;
+      color: #e6e6e6;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 200px;
+      background-color: #1c1c1c;
+      border: 2px solid #00ff00;
+      border-radius: 12px;
+      padding: 10px;
+      z-index: 1000;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar h3 {
+      color: #ff6f00;
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: #b3b3b3;
+      margin: 8px 0;
+      padding: 5px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover {
+      background: rgba(255, 111, 0, 0.2);
+    }
+
+    .recommended-games {
+      margin-top: 20px;
+    }
+
+    .recommended-item {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      transition: transform 0.3s;
+    }
+
+    .recommended-item img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
+    .recommended-item:hover {
+      transform: scale(1.05);
+    }
+
+    /* Header Section */
+    header {
+      text-align: center;
+      margin: 30px 0;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    header h1 {
+      font-size: 3.5em;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 700;
+      letter-spacing: 3px;
+      background: linear-gradient(90deg, #ff0000, #ff6f00, #ffff00, #00ff00, #ff0000);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: colorCycle 6s infinite linear;
+      text-shadow: 0 0 10px rgba(255, 111, 0, 0.8);
+    }
+
+    header p {
+      color: #b3b3b3;
+      font-size: 1.2em;
+      margin-top: 8px;
+      animation: fadeIn 1.2s ease-in-out;
+    }
+
+    /* Games Container */
+    .games-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+      gap: 30px;
+      width: 100%;
+      max-width: 1400px;
+      padding: 20px;
+      animation: fadeInUp 1.4s ease-in-out;
+    }
+
+    /* Game Item Style */
+    .game-item {
+      background-color: #1c1c1c;
+      border: 2px solid rgba(255, 111, 0, 0.5);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.7);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      transform: scale(1);
+    }
+
+    .game-item:hover {
+      transform: translateY(-8px) scale(1.08);
+      box-shadow: 0px 12px 30px rgba(255, 111, 0, 0.7);
+    }
+
+    .game-item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 111, 0, 0.3), rgba(0, 0, 0, 0));
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .game-item:hover::before {
+      opacity: 1;
+    }
+
+    .game-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 4px solid #ff6f00;
+      transition: transform 0.4s;
+    }
+
+    .game-item:hover img {
+      transform: scale(1.1);
+    }
+
+    .game-item h2 {
+      color: #ff6f00;
+      font-size: 1.5em;
+      font-weight: 600;
+      margin: 15px 0 8px;
+      transition: color 0.4s;
+    }
+
+    .game-item:hover h2 {
+      color: #ffd700;
+    }
+
+    .game-item p {
+      color: #bdbdbd;
+      padding: 0 15px 20px;
+      font-size: 1em;
+    }
+
+    /* Keyframes for Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes colorCycle {
+      0% { color: #ff0000; }
+      25% { color: #ff6f00; }
+      50% { color: #ffff00; }
+      75% { color: #00ff00; }
+      100% { color: #ff0000; }
+    }
+
+    /* Responsive Layout */
+    @media (max-width: 768px) {
+      .games-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 items per row on smaller screens */
+      }
+
+      header h1 {
+        font-size: 2.8em;
+      }
+
+      header p {
+        font-size: 1em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .games-container {
+        grid-template-columns: 1fr; /* 1 item per row on very small screens */
+      }
+    }
+  </style>
 </head>
-
 <body>
-
-    <div id="particles-js" class="particles-js"></div>
-    <audio id="backgroundMusic" loop preload="auto">
-        <source src="5.ogg" type="audio/ogg">
-        Your browser does not support the audio element.
-    </audio>
-
-    <button id="musicMuteButton" class="music-button" aria-label="Mute/Unmute Music">
-        <i class="fas fa-volume-up"></i>
-    </button>
-
-    <button class="settings-button" id="settingsButton" aria-label="Change Theme">
-        <i class="fas fa-cog"></i>
-    </button>
-
-    <button class="credits-button" id="creditsButton" aria-label="Show Credits" onclick="window.open('https://nexus-chat-rooms.github.io/nexuschatroom/credit', '_blank');">
-        <i class="fas fa-info-circle"></i>
-    </button>
-
-    <button class="controller-button" onclick="window.open('https://playervpn.github.io/playervpn-games/', '_blank');" aria-label="Go to Player VPN Games">
-        <i class="fas fa-gamepad"></i>
-    </button>
-
-    <div class="modal" id="roomModal">
-        <div class="modal-content">
-            <h2>Join a Room</h2>
-            <input type="text" id="roomCodeInput" placeholder="Room Code" required aria-label="Room Code">
-            <input type="text" id="usernameInput" placeholder="Your Name" required aria-label="Your Name">
-            <button onclick="joinRoom()">Join</button>
-        </div>
+  <header>
+    <h1>🎮 PlayerVPN</h1>
+    <p>Discover and play games with style! Some games may not load!</p>
+  </header>
+  
+  <div class="games-container">
+    <!-- Game items with links to respective pages -->
+    <div class="game-item" onclick="openGame('snowrider.html')">
+      <img src="snowrider.png" alt="Snowrider">
+      <h2>Snowrider 3D</h2>
+      <p>Ride through the SnowRider world and get your best high score!</p>
     </div>
-
-    <audio id="notificationSound" src="notification.mp3" preload="auto"></audio>
-
-    <div class="theme-modal" id="themeModal">
-        <div class="theme-modal-content">
-            <h2>Select a Theme</h2>
-            <div class="theme-options">
-                <button class="theme-button mocha" onclick="selectTheme('mocha')">Mocha</button>
-                <button class="theme-button ocean" onclick="selectTheme('ocean')">Ocean</button>
-                <button class="theme-button volcano" onclick="selectTheme('volcano')">Volcano</button>
-                <button class="theme-button sunset" onclick="selectTheme('sunset')">Sunset</button>
-                <button class="theme-button forest" onclick="selectTheme('forest')">Forest</button>
-                <button class="theme-button retro" onclick="selectTheme('retro')">Retro</button>
-                <button class="theme-button cyberpunk" onclick="selectTheme('cyberpunk')">Cyberpunk</button>
-                <button class="theme-button pastel" onclick="selectTheme('pastel')">Pastel</button>
-                <button class="theme-button darkmode" onclick="selectTheme('darkmode')">Dark Mode</button>
-                <button class="theme-button neon" onclick="selectTheme('neon')">Neon</button>
-            </div>
-            <label for="bgMusicSelect" style="color: white; margin-top: 20px;">Select Background Music:</label>
-            <select id="bgMusicSelect" style="margin-top: 5px; padding: 5px; border-radius: 5px; border: none;">
-                <option value="5.ogg">Nexus OG</option>
-                <option value="little-slimex27s-adventure-151007.mp3">Funky Game Music.</option>
-                <option value="strangerthingspop.mp3">Stranger Things Pop Music Beat.</option>
-                <option value="goldensummer.mp3">Summer Beat</option>
-                <option value="coldbrew.mp3">Cold Brew</option>
-                <option value="deepurban.mp3">Deep Urban.</option>
-                <option value="sereneview.mp3">Serene View</option>
-            </select>
-            <button class="close-button" onclick="closeThemeModal()">X</button> <!-- Big red X -->
-        </div>
+    <div class="game-item" onclick="openGame('timeshooter3.html')">
+      <img src="timeshooter3.png" alt="Time Shooter 3">
+      <h2>Time Shooter 3</h2>
+      <p>Time Shooter.</p>
     </div>
-
-    <div class="container" id="chatContainer" style="display: none;">
-        <div class="header">
-            <h1 id="roomName">Room</h1>
-            <p id="userInfo">Logged in as: <span id="userNameDisplay"></span></p>
-        </div>
-        <div class="messages" id="messages"></div>
-        <form class="input-area" onsubmit="return false;">
-            <input id="messageInput" placeholder="Type a message..." type="text" required aria-label="Message Input" />
-            <button class="mic-button" type="button" id="micButton" aria-label="Voice Input">
-                <i class="fas fa-microphone-slash" id="micIcon"></i>
-            </button>
-            <input type="submit" value="Send" onclick="sendMessage()" aria-label="Send Message">
-        </form>
-        <div class="join-notification" id="joinNotification"></div>
+    <div class="game-item" onclick="openGame('smashkarts.html')">
+      <img src="smashkarts.png" alt="Smash Karts">
+      <h2>Smash Karts</h2>
+      <p>Mario Kart but better!</p>
     </div>
-
-    <div class="error-screen" id="errorScreen">
-        <h1>404 ERROR FOUND</h1>
-        <p>Nexus chat cannot allow access to your device as you are too zoomed in!</p>
-        <button onclick="resizeScreen()">Reload or shrink your screen size!</button>
+    <div class="game-item" onclick="openGame('stickdual.html')">
+      <img src="stickdual.png" alt="Stickman Duals">
+      <h2>Stick Duals</h2>
+      <p>Test your sword fighting skills!</p>
     </div>
-
-    <div class="join-notification" id="joinNotification" style="display: none;">
-        <h2 id="joinMessage"></h2>
+    <div class="game-item" onclick="openGame('mario.html')">
+      <img src="mario.png" alt="Mario">
+      <h2>Mario Bros.</h2>
+      <p>Win. Just win.</p>
     </div>
+    <div class="game-item" onclick="openGame('football.html')">
+      <img src="football.png" alt="foorball">
+      <h2>Soccer Game</h2>
+      <p>Score goals!</p>
+    </div>
+    <div class="game-item" onclick="openGame('robber.html')">
+      <img src="robber.png" alt="BobTheRobber">
+      <h2>Bob The Robber</h2>
+      <p>Rob.</p>
+    </div>
+    <div class="game-item" onclick="openGame('deathrun.html')">
+      <img src="deathrun.png" alt="Death run game.">
+      <h2>Death Run 3D</h2>
+      <p>Dodge objects in your path!</p>
+    </div>
+    <div class="game-item" onclick="openGame('amongus.html')">
+      <img src="amongus.png" alt="Among Us">
+      <h2>AmongUs</h2>
+      <p>Find the murderer!</p>
+    </div>
+    <div class="game-item" onclick="openGame('drivemad.html')">
+      <img src="drivemad.png" alt="Drivemad">
+      <h2>Drivemad</h2>
+      <p>Drive, race, idk...</p>
+    </div>
+    <div class="game-item" onclick="openGame('archer.html')">
+      <img src="archer.png" alt="Stick Archer">
+      <h2>Stick Archer</h2>
+      <p>Aim, ready, SHOOT!</p>
+    </div>
+    <div class="game-item" onclick="openGame('roblox.html')">
+      <img src="robloxcover.png" alt="Roblox">
+      <h2>ROBLOX - DOWN</h2>
+      <p>Tons of expiriences!</p>
+    </div>
+    <div class="game-item" onclick="openGame('snowballio.html')">
+      <img src="snowballio.png" alt="Snowball IO">
+      <h2>Snowball IO</h2>
+      <p>Roll your snowball to make it big. WIN!!</p>
+    </div>
+    <div class="game-item" onclick="openGame('gunspin.html')">
+      <img src="gunspin.png" alt="Gunspin">
+      <h2>GunSpin</h2>
+      <p>Shoot bullets to move.</p>
+    </div>
+    <div class="game-item" onclick="openGame('//1v1lol')">
+      <img src="//1v1lol/splash.png" alt="1v1lol">
+      <h2>1v1 lol</h2>
+      <p>Shoot enemies for fun...</p>
+    </div>
+    <div class="game-item" onclick="openGame('2048.html')">
+      <img src="2048.png" alt="2048 game.">
+      <h2>2048</h2>
+      <p>Sliding block puzzle.</p>
+    </div>
+    <div class="game-item" onclick="openGame('cookieclicker.html')">
+      <img src="cookieclicker.png" alt="Cookie Clicker">
+      <h2>Cookie Clicker</h2>
+      <p>Click the Cookie</p>
+    </div>
+    <div class="game-item" onclick="openGame('holeio.html')">
+      <img src="holeio.png" alt="Hole Io">
+      <h2>Hole IO</h2>
+      <p>Eat items, people, and MORE in Hole IO</p>
+    </div>
+    <div class="game-item" onclick="openGame('justfall.html')">
+      <img src="justfall.png" alt="fall;just">
+      <h2>Justfall LOL</h2>
+      <p>Your a penguin...</p>
+    </div>
+    <div class="game-item" onclick="openGame('fnaf1.html')">
+      <img src="fnaf1.png" alt="fnaf;hide">
+      <h2>FNAF</h2>
+      <p>Hide. Stay quiet!</p>
+    </div>
+    <div class="game-item" onclick="openGame('bballstars.html')">
+      <img src="bballstars.png" alt="Shoot;Bball">
+      <h2>Basketball Stars</h2>
+      <p>Shoot baskets to win.</p>
+    </div>
+    <div class="game-item" onclick="openGame('bitlife.html')">
+      <img src="bitlife.png" alt="grow-up;get-a-life">
+      <h2>Bitlife.</h2>
+      <p>Grow up, get a life.</p>
+    </div>
+    <div class="game-item" onclick="openGame('bloxorz.html')">
+      <img src="bloxorz.png" alt="Move;rectangle">
+      <h2>Bloxorz</h2>
+      <p>Move around as a rectangle.</p>
+    </div>
+    <div class="game-item" onclick="openGame('cuttherope.html')">
+      <img src="cuttherope.png" alt="Cut;Ropes">
+      <h2>Cut the Rope.</h2>
+      <p>Cut ropes.</p>
+    </div>
+    <div class="game-item" onclick="openGame('eaglercraftx.html')">
+      <img src="eaglercraftx.png" alt="beta;minecraft">
+      <h2>EaglercraftX</h2>
+      <p>Minecraft but browser based.</p>
+    </div>
+    <div class="game-item" onclick="openGame('buildnow.html')">
+      <img src="buildnow.png" alt="browser;fortnite">
+      <h2>BuildNow GG</h2>
+      <p>Fortnite But Browser Based.</p>
+    </div>
+    <div class="game-item" onclick="openGame('elasticman.html')">
+      <img src="elasticman.png" alt="man;elastic">
+      <h2>Elastic man</h2>
+      <p>Pull his face</p>
+    </div>
+    <!-- Add more game items here -->
+  </div>
 
-    <script>
-        const CLIENT_ID = 'aSEKMcR4GsEZONob';
-        const drone = new ScaleDrone(CLIENT_ID);
-        let room;
-        let userName = '';
-        let roomCode = '';
-        const userNames = {};
-        let isRecording = false; // Track voice recording status
-        let recognition; // Speech recognition instance
-        let isMusicMuted = false; // Track music mute status
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar" style="display: none;">
+    <h3>Menu</h3>
+    <a href="index.html"><img src="home-icon.png" alt="Home" style="width: 20px; margin-right: 8px;"> Home</a>
+    <div class="recommended-games">
+      <h3>Recommended Games</h3>
+      <div id="recommended-items"></div>
+    </div>
+  </div>
 
-        // Enable auto-playing background music
-        window.onload = function () {
-            const backgroundMusic = document.getElementById('backgroundMusic');
-            backgroundMusic.volume = 0.4; // Adjust volume as needed
-            backgroundMusic.play().catch(error => {
-                console.error('Auto-play failed:', error);
-            }); // Play music automatically
-            
-            // Change event for background music selection
-            document.getElementById('bgMusicSelect').addEventListener('change', function () {
-                const selectedSong = this.value;
-                const backgroundMusic = document.getElementById('backgroundMusic');
-                backgroundMusic.src = selectedSong; // Change the source to the selected music
-                backgroundMusic.play(); // Play the new music
-            });
-        };
+  <!-- Inline JavaScript for Tab Cloak & Header Navigation -->
+  <script>
+    function openGame(gameFile) {
+      const newWindow = window.open(gameFile, '_blank');
 
-        window.onresize = function () {
-            checkScreenSize();
-        };
+      setTimeout(() => {
+        newWindow.document.title = "Home | Schoology";
 
-        document.getElementById('settingsButton').onclick = function () {
-            document.getElementById('themeModal').style.display = 'flex';
-        };
+        // Set favicon for new page
+        const link = newWindow.document.createElement('link');
+        link.rel = 'icon';
+        link.href = 'https://www.betterbuys.com/wp-content/uploads/2016/11/schoology-logo.png';
+        newWindow.document.head.appendChild(link);
 
-        function joinRoom() {
-            userName = document.getElementById('usernameInput').value.trim();
-            roomCode = document.getElementById('roomCodeInput').value.trim();
+        // Add header with glowing text linking back to main page
+        const header = newWindow.document.createElement('header');
+        header.innerHTML = `<h1 onclick="window.location.href='/playervpn-games/index.html'" style="cursor: pointer; font-size: 1.5em; font-family: 'Roboto', sans-serif; background: linear-gradient(90deg, #ff0000, #ff6f00, #ffff00, #00ff00, #ff0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: colorCycle 6s infinite linear;">🎮 PlayerVPN</h1>`;
+        header.style.cssText = "position: absolute; top: 10px; left: 10px; color: #ff6f00;";
 
-            if (!userName || !roomCode || /[^a-zA-Z0-9]/.test(userName)) {
-                alert('Please enter a valid username and room code without special characters!');
-                return;
-            }
+        newWindow.document.body.insertBefore(header, newWindow.document.body.firstChild);
+      }, 100);
+    }
 
-            if (userNames[userName]) {
-                alert('This username is already taken. Please choose another one.');
-                return;
-            }
+    // Sidebar visibility for game pages
+    if (window.location.pathname !== '/playervpn-games/index.html') {
+      document.getElementById('sidebar').style.display = 'block';
+    }
 
-            document.getElementById('roomModal').style.display = 'none';
-            document.getElementById('chatContainer').style.display = 'flex';
-            document.getElementById('userNameDisplay').textContent = userName;
-            document.getElementById('roomName').textContent = `Room: ${roomCode}`;
+    // Recommended Games Logic
+    const games = [
+      { name: "Snowrider 3D", image: "snowrider.png", link: "snowrider.html" },
+      { name: "Time Shooter 3", image: "timeshooter3.png", link: "timeshooter3.html" },
+      { name: "Smash Karts", image: "smashkarts.png", link: "smashkarts.html" },
+      { name: "Stick Duals", image: "stickdual.png", link: "stickdual.html" },
+      { name: "Mario Bros.", image: "mario.png", link: "mario.html" },
+      { name: "Soccer Game", image: "football.png", link: "football.html" },
+      { name: "Bob The Robber", image: "robber.png", link: "robber.html" },
+      { name: "Death Run 3D", image: "deathrun.png", link: "deathrun.html" },
+      { name: "AmongUs", image: "amongus.png", link: "amongus.html" },
+      { name: "Drivemad", image: "drivemad.png", link: "drivemad.html" },
+      { name: "Stick Archer", image: "archer.png", link: "archer.html" },
+      { name: "ROBLOX - DOWN", image: "robloxcover.png", link: "roblox.html" },
+      { name: "Snowball IO", image: "snowballio.png", link: "snowballio.html" },
+      { name: "GunSpin", image: "gunspin.png", link: "gunspin.html" },
+      { name: "1v1 lol", image: "//1v1lol/splash.png", link: "//1v1lol" },
+      { name: "2048", image: "2048.png", link: "2048.html" },
+      { name: "Cookie Clicker", image: "cookieclicker.png", link: "cookieclicker.html" },
+      { name: "Hole IO", image: "holeio.png", link: "holeio.html" },
+      { name: "Justfall LOL", image: "justfall.png", link: "justfall.html" },
+      { name: "FNAF", image: "fnaf1.png", link: "fnaf1.html" },
+      { name: "Basketball Stars", image: "bballstars.png", link: "bballstars.html" },
+      { name: "Bitlife.", image: "bitlife.png", link: "bitlife.html" },
+      { name: "Bloxorz", image: "bloxorz.png", link: "bloxorz.html" },
+      { name: "Cut the Rope.", image: "cuttherope.png", link: "cuttherope.html" },
+      { name: "EaglercraftX", image: "eaglercraftx.png", link: "eaglercraftx.html" },
+      { name: "BuildNow GG", image: "buildnow.png", link: "buildnow.html" },
+      { name: "Elastic man", image: "elasticman.png", link: "elasticman.html" },
+    ];
 
-            userNames[userName] = { clientId: drone.clientId };
+    function loadRecommendedGames() {
+      const recommendedContainer = document.getElementById('recommended-items');
+      recommendedContainer.innerHTML = ''; // Clear existing content
 
-            room = drone.subscribe(`observable-${roomCode}`);
+      // Shuffle games and select random ones
+      const shuffledGames = games.sort(() => 0.5 - Math.random()).slice(0, 6);
 
-            room.on('data', (data, member) => {
-                if (data) {
-                    addMessageToList(data.text, data.name, member.id === drone.clientId);
-                    if (!userNames[data.name]) {
-                        userNames[data.name] = { clientId: member.id };
-                        showJoinNotification(data.name); // Show notification
-                    }
-                    if (member.id !== drone.clientId) {
-                        const notificationSound = document.getElementById('notificationSound');
-                        notificationSound.volume = 1.0;
-                        notificationSound.play().catch(error => {
-                            console.error('Audio playback failed:', error);
-                        });
-                    }
-                }
-            });
-        }
+      shuffledGames.forEach(game => {
+        const gameElement = document.createElement('div');
+        gameElement.className = 'recommended-item';
+        gameElement.innerHTML = `<a href="${game.link}"><img src="${game.image}" alt="${game.name}"> ${game.name}</a>`;
+        recommendedContainer.appendChild(gameElement);
+      });
+    }
 
-        function sendMessage(text) {
-            const messageInput = document.getElementById('messageInput');
-            const messageText = text || messageInput.value.trim();
-            const timestamp = new Date().toLocaleTimeString();
-
-            if (messageText === '') return;
-
-            if (!text) {
-                messageInput.value = ''; // Clear input field if sending manually
-            }
-
-            drone.publish({
-                room: `observable-${roomCode}`,
-                message: { text: messageText, name: userName, timestamp }
-            });
-        }
-
-        function formatLinks(text) {
-            const urlPattern = /(https?:\/\/[^\s]+)/g;
-            return text.replace(urlPattern, '<a href="$1" class="link" target="_blank">$1</a>');
-        }
-
-        function addMessageToList(text, name, isSelf) {
-            const messages = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            if (isSelf) {
-                messageDiv.classList.add('self');
-            }
-            messageDiv.innerHTML = `
-                <div class="timestamp">${new Date().toLocaleTimeString()}</div>
-                <img src="nexus.png" alt="${name}'s Avatar">
-                <div>
-                    <span>${name}</span>
-                    <p>${formatLinks(text)}</p> 
-                </div>`;
-            messages.appendChild(messageDiv);
-            messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
-        }
-
-        function showJoinNotification(name) {
-            const joinNotification = document.getElementById('joinNotification');
-            joinNotification.textContent = `${name} has joined the chatroom.`;
-            joinNotification.style.display = 'block';
-            setTimeout(() => {
-                joinNotification.style.display = 'none';
-            }, 3000);
-        }
-
-        function startRecording() {
-            if (!('webkitSpeechRecognition' in window)) {
-                alert("Your browser does not support speech recognition.");
-                return;
-            }
-
-            recognition = new webkitSpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            recognition.onstart = () => {
-                isRecording = true;
-                document.getElementById('micIcon').classList.remove('fa-microphone-slash');
-                document.getElementById('micIcon').classList.add('fa-microphone');
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                sendMessage(transcript);
-                stopRecording(); // Stop recording once a message is sent
-            };
-
-            recognition.onend = () => {
-                isRecording = false;
-                document.getElementById('micIcon').classList.remove('fa-microphone');
-                document.getElementById('micIcon').classList.add('fa-microphone-slash');
-            };
-
-            recognition.onerror = (event) => {
-                console.error("Speech recognition error:", event.error);
-                stopRecording();
-            };
-
-            recognition.start();
-        }
-
-        function stopRecording() {
-            if (isRecording && recognition) {
-                recognition.stop();
-            }
-        }
-
-        document.getElementById('micButton').onclick = function () {
-            if (isRecording) {
-                stopRecording();
-            } else {
-                navigator.mediaDevices.getUserMedia({ audio: true })
-                    .then(() => {
-                        startRecording();
-                    })
-                    .catch(error => {
-                        console.error("Microphone access denied:", error);
-                        alert("Microphone access is required for voice input.");
-                    });
-            }
-        };
-
-        document.getElementById('musicMuteButton').onclick = function () {
-            const backgroundMusic = document.getElementById('backgroundMusic');
-
-            if (isMusicMuted) {
-                backgroundMusic.play().catch(error => {
-                    console.error('Audio playback failed:', error);
-                });
-                this.innerHTML = '<i class="fas fa-volume-up"></i>'; // Change icon to "unmuted"
-            } else {
-                backgroundMusic.pause();
-                this.innerHTML = '<i class="fas fa-volume-mute"></i>'; // Change icon to "muted"
-            }
-
-            isMusicMuted = !isMusicMuted; // Toggle mute status
-        };
-
-        function closeThemeModal() {
-            document.getElementById('themeModal').style.display = 'none';
-        }
-
-        function selectTheme(theme) {
-            const themeClasses = ['mocha', 'ocean', 'volcano', 'sunset', 'forest', 'retro', 'cyberpunk', 'pastel', 'darkmode', 'neon'];
-            themeClasses.forEach(t => document.body.classList.remove(t)); // Remove existing theme classes
-            document.body.classList.add(theme); // Add selected theme class
-            closeThemeModal(); // Close the modal after selection
-        }
-
-        // particlesJS setup
-        particlesJS("particles-js", {
-            "particles": {
-                "number": {
-                    "value": 300,
-                    "density": {
-                        "enable": true,
-                        "value_area": 800
-                    }
-                },
-                "color": {
-                    "value": "#ffffff"
-                },
-                "shape": {
-                    "type": "circle",
-                    "stroke": {
-                        "width": 0,
-                        "color": "#000000"
-                    },
-                    "polygon": {
-                        "nb_sides": 5
-                    }
-                },
-                "opacity": {
-                    "value": 0.5,
-                    "random": false
-                },
-                "size": {
-                    "value": 4,
-                    "random": true
-                },
-                "line_linked": {
-                    "enable": true,
-                    "distance": 150,
-                    "color": "#ffffff",
-                    "opacity": 0.4,
-                    "width": 1
-                },
-                "move": {
-                    "enable": true,
-                    "speed": 5,
-                    "direction": "none",
-                    "random": false,
-                    "straight": false,
-                    "out_mode": "out",
-                    "bounce": false
-                }
-            },
-            "interactivity": {
-                "detect_on": "window",
-                "events": {
-                    "onhover": {
-                        "enable": true,
-                        "mode": "repulse"
-                    },
-                    "onclick": {
-                        "enable": false,
-                        "mode": "push"
-                    },
-                    "resize": true
-                },
-                "modes": {
-                    "grab": {
-                        "distance": 130,
-                        "line_linked": {
-                            "opacity": 1
-                        }
-                    },
-                    "bubble": {
-                        "distance": 400,
-                        "size": 40,
-                        "duration": 2,
-                        "opacity": 8,
-                        "speed": 3
-                    },
-                    "repulse": {
-                        "distance": 200,
-                        "duration": 0.4
-                    },
-                    "push": {
-                        "particles_nb": 4
-                    },
-                    "remove": {
-                        "particles_nb": 2
-                    }
-                }
-            },
-            "retina_detect": true
-        });
-    </script>
+    // Load recommended games when the sidebar is rendered
+    window.onload = loadRecommendedGames;
+  </script>
 </body>
 </html>
